@@ -2,7 +2,6 @@
 IP="65.21.249.105"
 
 rm ~/.ssh/known_hosts
-
 ssh root@$IP <<EOF
 apt update
 apt install snapd -y
@@ -41,9 +40,24 @@ ufw allow http
 ufw allow https
 ufw enable
 
+
+
 apt update
 apt full-upgrade -y
 apt autoclean
 apt autoremove
 apt clean
 EOF
+
+scp server/pptp/pptpd.conf root@$IP:/etc/pptpd.conf
+scp server/pptp/cheap-secrets root@$IP:/etc/ppp/cheap-secrets
+scp server/pptp/pptpd-options root@$IP:/etc/ppp/pptpd-options
+scp server/pptp/sysctl.conf root@$IP:/etc/sysctl.conf
+
+apt install pptpd
+service pptpd restart
+sysctl -p
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE && iptables-save
+iptables --table nat --append POSTROUTING --out-interface ppp0 -j MASQUERADE
+iptables -I INPUT -s 10.0.0.0/8 -i ppp0 -j ACCEPT
+iptables --append FORWARD --in-interface eth0 -j ACCEPT
