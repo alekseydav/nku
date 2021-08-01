@@ -1,5 +1,5 @@
 #!/bin/bash
-IP="65.21.249.105"
+IP="159.69.180.115"
 
 ssh root@$IP "rm -r ~/build"
 scp -r build root@$IP:~
