@@ -18,7 +18,7 @@
 	<div class="content">
 		<Headline />
 		<Projects />
-		<Reviews />
+		<!-- <Reviews /> -->
 		<Request />
 		<Contacts />
 	</div>
