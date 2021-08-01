@@ -122,9 +122,9 @@ EOF
 
 read -p "PPTPD Username: " uservar
 read -sp "PPTPD Password: " passvar
-echo "$uservar * $passvar *" >> chap-secrets
+echo "$uservar * $passvar *" >> server/chap-secrets
 
-scp chap-secrets root@$IP:/etc/ppp/chap-secrets
+scp server/chap-secrets root@$IP:/etc/ppp/chap-secrets
 
 ssh $SSH_OPTIONS root@$IP <<EOF
 systemctl restart pptpd
