@@ -1,18 +1,21 @@
 #!/bin/bash
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
-IP="159.69.180.115"
-EMAIL="a@dev.nku.su"
-DOMAIN="dev.nku.su"
+IP="65.21.249.105"
+EMAIL="a@nku.su"
+DOMAIN="test.nku.su"
 SSH_OPTIONS="-o StrictHostKeyChecking=no -o ConnectionAttempts=60"
 release=$(ssh $SSH_OPTIONS root@$IP lsb_release -cs)
 rm ~/.ssh/known_hosts
+
+ECHO "Enter User and Password for PPTPD"
+read -p "PPTPD Username: " uservar
+read -sp "PPTPD Password: " passvar
 
 ssh $SSH_OPTIONS root@$IP <<EOF
 apt update
 apt upgrade -y
 
 apt install curl gnupg2 ca-certificates lsb-release apt-utils libterm-readkey-perl libswitch-perl -y
-
 apt install snapd -y
 snap install core
 snap refresh core
@@ -24,10 +27,7 @@ EOF
 
 ssh $SSH_OPTIONS root@$IP <<EOF
 ln -s /snap/bin/certbot /usr/bin/certbot
-echo "Getting SSL"
 certbot certonly --standalone -m $EMAIL -d $DOMAIN  --agree-tos -n 
-echo "Let's Encrypt SSL done"
-echo "--------------------------------------------------------------------------------------------------------"
 openssl dhparam -out /etc/letsencrypt/ssl-dhparams.pem 2048
 EOF
 ssh $SSH_OPTIONS root@$IP <<EOF
@@ -46,12 +46,18 @@ curl -o /tmp/nginx_signing.key https://nginx.org/keys/nginx_signing.key
 gpg --dry-run --quiet --import --import-options show-only /tmp/nginx_signing.key
 mv /tmp/nginx_signing.key /etc/apt/trusted.gpg.d/nginx_signing.asc
 apt update
-
 apt install nginx -y
 EOF
 
-scp server/nginx.conf root@$IP:/etc/nginx/nginx.conf
+cat > /etc/yum.repos.d/docker.repo <<EOF 
+TEXT HERE 
+EOF
 
+scp server/nginx.conf root@$IP:/etc/nginx/nginx.conf
+ssh $SSH_OPTIONS root@$IP <<EOF
+
+
+EOF
 
 echo "Clear all iptables rules"
 ssh $SSH_OPTIONS root@$IP <<EOF
@@ -84,8 +90,6 @@ ufw allow http
 ufw allow https
 ufw allow 1723
 
-
-
 apt update
 apt full-upgrade -y
 apt autoclean
@@ -93,26 +97,20 @@ apt autoremove
 apt clean
 EOF
 
-
-
+ssh $SSH_OPTIONS root@$IP <<EOF
 sed -i 's/DEFAULT_FORWARD_POLICY="DROP"/DEFAULT_FORWARD_POLICY="ACCEPT"/g' /etc/default/ufw
 sed -i 's%*filter%*filter\n-A ufw-before-input -p 47 -j ACCEPT%g' /etc/ufw/before.rules
 sed -i 's%*filter%*filter\n-A ufw-before-output -p 47 -j ACCEPT%g' /etc/ufw/before.rules
 sed -i 's%# drop INVALID packets (logs these in loglevel medium and higher)%# drop INVALID packets (logs these in loglevel medium and higher)\n-A ufw-before-input -p 47 -j ACCEPT%g' /etc/ufw/before.rules
 sed -i "s%# Don't delete these required lines, otherwise there will be errors%# Don't delete these required lines, otherwise there will be errors\n*nat%g" /etc/ufw/before.rules
 sed -i 's%*nat%*nat \n:POSTROUTING ACCEPT [0:0]\n-A POSTROUTING -o eth0 -j MASQUERADE\nCOMMIT\n%g' /etc/ufw/before.rules
-
-
-
-
-
+EOF
 
 ssh $SSH_OPTIONS root@$IP <<EOF
 ufw disable
 ufw --force enable
 echo "y" | sudo ufw enable
 EOF
-
 
 echo "PPTPD SERVER INSTALLATION"
 ssh $SSH_OPTIONS root@$IP <<EOF
@@ -122,8 +120,8 @@ echo "Done ---------------------------------------------------------------------
 ssh $SSH_OPTIONS root@$IP <<EOF
 echo "option /etc/ppp/pptpd-options" > /etc/pptpd.conf
 echo "pidfile /var/run/pptpd.pid" >> /etc/pptpd.conf
-echo "localip 10.10.10.1" >> /etc/pptpd.conf
-echo "remoteip 10.10.10.2-199" >> /etc/pptpd.conf
+echo "localip 10.0.0.1" >> /etc/pptpd.conf
+echo "remoteip 10.0.0.100-200" >> /etc/pptpd.conf
 echo "name pptpd" > /etc/ppp/pptpd-options
 echo "refuse-pap" >> /etc/ppp/pptpd-options
 echo "refuse-chap" >> /etc/ppp/pptpd-options
@@ -147,18 +145,10 @@ echo "nameserver 2001:4860:4860::8888" >> /etc/resolv.conf
 echo "nameserver 2001:4860:4860::8844" >> /etc/resolv.conf
 EOF
 
-
-
 ssh $SSH_OPTIONS root@$IP <<EOF
 sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
 sysctl -p
-
 EOF
-
-ECHO "Enter User and Password for PPTPD"
-
-read -p "PPTPD Username: " uservar
-read -sp "PPTPD Password: " passvar
 
 ssh $SSH_OPTIONS root@$IP <<EOF
 echo "$uservar * $passvar *" >> /etc/ppp/chap-secrets
