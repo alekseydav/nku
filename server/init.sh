@@ -7,15 +7,12 @@ SSH_OPTIONS="-o StrictHostKeyChecking=no -o ConnectionAttempts=60"
 release=$(ssh $SSH_OPTIONS root@$IP lsb_release -cs)
 rm ~/.ssh/known_hosts
 
-ECHO "Enter User and Password for PPTPD"
-read -p "PPTPD Username: " uservar
-read -sp "PPTPD Password: " passvar
-
 ssh $SSH_OPTIONS root@$IP <<EOF
 apt update
 apt upgrade -y
 
 apt install curl gnupg2 ca-certificates lsb-release apt-utils libterm-readkey-perl libswitch-perl -y
+
 apt install snapd -y
 snap install core
 snap refresh core
@@ -27,7 +24,10 @@ EOF
 
 ssh $SSH_OPTIONS root@$IP <<EOF
 ln -s /snap/bin/certbot /usr/bin/certbot
+echo "Getting SSL"
 certbot certonly --standalone -m $EMAIL -d $DOMAIN  --agree-tos -n 
+echo "Let's Encrypt SSL done"
+echo "--------------------------------------------------------------------------------------------------------"
 openssl dhparam -out /etc/letsencrypt/ssl-dhparams.pem 2048
 EOF
 ssh $SSH_OPTIONS root@$IP <<EOF
@@ -46,17 +46,62 @@ curl -o /tmp/nginx_signing.key https://nginx.org/keys/nginx_signing.key
 gpg --dry-run --quiet --import --import-options show-only /tmp/nginx_signing.key
 mv /tmp/nginx_signing.key /etc/apt/trusted.gpg.d/nginx_signing.asc
 apt update
+
 apt install nginx -y
 EOF
 
-cat > /etc/yum.repos.d/docker.repo <<EOF 
-TEXT HERE 
-EOF
+#scp server/nginx.conf root@$IP:/etc/nginx/nginx.conf
 
-scp server/nginx.conf root@$IP:/etc/nginx/nginx.conf
+echo "Nginx build nginx.conf"
 ssh $SSH_OPTIONS root@$IP <<EOF
+echo -ne "worker_processes auto;
+pid /var/run/nginx.pid;
 
+events {
+  worker_connections 768;
+}
 
+http {
+  include mime.types;
+  sendfile on;
+  tcp_nopush on;
+  tcp_nodelay on;
+  client_max_body_size 0;
+
+  server {
+    server_name $DOMAIN;
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+    ssl_session_tickets off;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers \"ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384\";
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \"upgrade\";
+        proxy_read_timeout 86400;
+    }
+  }
+
+  server {
+    listen 80 default_server;
+    return 301 https://$DOMAIN\$request_uri;
+  }
+
+  server {
+    listen 443 ssl default_server;
+    return 301 https://$DOMAIN\$request_uri;
+
+    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
+  }
+}" > /etc/nginx/nginx.conf
 EOF
 
 echo "Clear all iptables rules"
@@ -90,12 +135,15 @@ ufw allow http
 ufw allow https
 ufw allow 1723
 
+
+
 apt update
 apt full-upgrade -y
 apt autoclean
 apt autoremove
 apt clean
 EOF
+
 
 ssh $SSH_OPTIONS root@$IP <<EOF
 sed -i 's/DEFAULT_FORWARD_POLICY="DROP"/DEFAULT_FORWARD_POLICY="ACCEPT"/g' /etc/default/ufw
@@ -106,11 +154,16 @@ sed -i "s%# Don't delete these required lines, otherwise there will be errors%# 
 sed -i 's%*nat%*nat \n:POSTROUTING ACCEPT [0:0]\n-A POSTROUTING -o eth0 -j MASQUERADE\nCOMMIT\n%g' /etc/ufw/before.rules
 EOF
 
+
+
+
+
 ssh $SSH_OPTIONS root@$IP <<EOF
 ufw disable
 ufw --force enable
 echo "y" | sudo ufw enable
 EOF
+
 
 echo "PPTPD SERVER INSTALLATION"
 ssh $SSH_OPTIONS root@$IP <<EOF
@@ -145,10 +198,18 @@ echo "nameserver 2001:4860:4860::8888" >> /etc/resolv.conf
 echo "nameserver 2001:4860:4860::8844" >> /etc/resolv.conf
 EOF
 
+
+
 ssh $SSH_OPTIONS root@$IP <<EOF
 sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
 sysctl -p
+
 EOF
+
+ECHO "Enter User and Password for PPTPD"
+
+read -p "PPTPD Username: " uservar
+read -sp "PPTPD Password: " passvar
 
 ssh $SSH_OPTIONS root@$IP <<EOF
 echo "$uservar * $passvar *" >> /etc/ppp/chap-secrets
@@ -160,3 +221,18 @@ systemctl enable pptpd
 systemctl enable nginx
 systemctl restart nginx
 EOF
+
+ssh root@$IP "rm -r ~/build"
+scp -r build root@$IP:~
+scp package.json root@$IP:~/build
+ssh root@$IP << EOF
+cd build
+npm install --production
+pm2 stop nku
+rm -r ~/nku
+mv ~/build ~/nku
+pm2 start ~/nku/index.js --name nku
+pm2 save
+EOF
+
+echo "https://$DOMAIN"
