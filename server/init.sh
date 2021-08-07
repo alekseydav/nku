@@ -54,7 +54,7 @@ EOF
 
 echo "Nginx build nginx.conf"
 ssh $SSH_OPTIONS root@$IP <<EOF
-echo -ne "worker_processes auto;
+echo -en "worker_processes auto;
 pid /var/run/nginx.pid;
 
 events {
@@ -83,7 +83,7 @@ http {
     location / {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Upgrade "'$http_upgrade'";
         proxy_set_header Connection \"upgrade\";
         proxy_read_timeout 86400;
     }
@@ -91,12 +91,12 @@ http {
 
   server {
     listen 80 default_server;
-    return 301 https://$DOMAIN\$request_uri;
+    return 301 https://$DOMAIN"'$request_uri'";
   }
 
   server {
     listen 443 ssl default_server;
-    return 301 https://$DOMAIN\$request_uri;
+    return 301 https://$DOMAIN"'$request_uri'";
 
     ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
