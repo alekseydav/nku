@@ -13,3 +13,5 @@ mv ~/build ~/nku
 pm2 start ~/nku/index.js --name nku
 pm2 save
 EOF
+
+echo "https://nku.su"

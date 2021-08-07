@@ -1,8 +1,8 @@
 #!/bin/bash
-PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
 IP="65.21.249.105"
 EMAIL="a@nku.su"
-DOMAIN="d.nku.su"
+DOMAIN="nku.su"
+read -sp "Enter PPTPD Password: " passvar
 SSH_OPTIONS="-o StrictHostKeyChecking=no -o ConnectionAttempts=60"
 release=$(ssh $SSH_OPTIONS root@$IP lsb_release -cs)
 rm ~/.ssh/known_hosts
@@ -37,8 +37,6 @@ apt-cache policy libssl1.0-dev
 apt install libssl1.0-dev -y
 EOF
 
-echo "Nginx instalaltion"
-
 ssh $SSH_OPTIONS root@$IP <<EOF
 echo "deb http://nginx.org/packages/mainline/ubuntu $release nginx" > /etc/apt/sources.list.d/nginx.list
 echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" | tee /etc/apt/preferences.d/99nginx
@@ -50,9 +48,6 @@ apt update
 apt install nginx -y
 EOF
 
-#scp server/nginx.conf root@$IP:/etc/nginx/nginx.conf
-
-echo "Nginx build nginx.conf"
 ssh $SSH_OPTIONS root@$IP <<EOF
 echo -en "worker_processes auto;
 pid /var/run/nginx.pid;
@@ -104,7 +99,6 @@ http {
 }" > /etc/nginx/nginx.conf
 EOF
 
-echo "Clear all iptables rules"
 ssh $SSH_OPTIONS root@$IP <<EOF
 echo "history" >> etc/iptables.up.rules.old
 iptables-save >> /etc/iptables.up.rules.old
@@ -135,15 +129,12 @@ ufw allow http
 ufw allow https
 ufw allow 1723
 
-
-
 apt update
 apt full-upgrade -y
 apt autoclean
 apt autoremove
 apt clean
 EOF
-
 
 ssh $SSH_OPTIONS root@$IP <<EOF
 sed -i 's/DEFAULT_FORWARD_POLICY="DROP"/DEFAULT_FORWARD_POLICY="ACCEPT"/g' /etc/default/ufw
@@ -154,22 +145,15 @@ sed -i "s%# Don't delete these required lines, otherwise there will be errors%# 
 sed -i 's%*nat%*nat \n:POSTROUTING ACCEPT [0:0]\n-A POSTROUTING -o eth0 -j MASQUERADE\nCOMMIT\n%g' /etc/ufw/before.rules
 EOF
 
-
-
-
-
 ssh $SSH_OPTIONS root@$IP <<EOF
 ufw disable
 ufw --force enable
 echo "y" | sudo ufw enable
 EOF
 
-
-echo "PPTPD SERVER INSTALLATION"
 ssh $SSH_OPTIONS root@$IP <<EOF
 apt install pptpd ppp iptables iproute2 -y
 EOF
-echo "Done --------------------------------------------------------------------------------------"
 ssh $SSH_OPTIONS root@$IP <<EOF
 echo "option /etc/ppp/pptpd-options" > /etc/pptpd.conf
 echo "pidfile /var/run/pptpd.pid" >> /etc/pptpd.conf
@@ -198,21 +182,13 @@ echo "nameserver 2001:4860:4860::8888" >> /etc/resolv.conf
 echo "nameserver 2001:4860:4860::8844" >> /etc/resolv.conf
 EOF
 
-
-
 ssh $SSH_OPTIONS root@$IP <<EOF
 sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
 sysctl -p
-
 EOF
 
-ECHO "Enter User and Password for PPTPD"
-
-read -p "PPTPD Username: " uservar
-read -sp "PPTPD Password: " passvar
-
 ssh $SSH_OPTIONS root@$IP <<EOF
-echo "$uservar * $passvar *" >> /etc/ppp/chap-secrets
+echo "nku * $passvar *" >> /etc/ppp/chap-secrets
 EOF
 
 ssh $SSH_OPTIONS root@$IP <<EOF
@@ -221,7 +197,3 @@ systemctl enable pptpd
 systemctl enable nginx
 systemctl restart nginx
 EOF
-
-./deploy.sh
-
-echo "https://$DOMAIN"
