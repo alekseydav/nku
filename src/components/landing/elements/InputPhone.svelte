@@ -9,7 +9,7 @@
         if (key === "Enter") {
             dispatch("submit");
         } else {
-            disableError()
+            disableError();
         }
     }
 
@@ -50,6 +50,9 @@
     .phone {
         font-size: 1.25rem;
         margin-top: 8px;
+        border: none;
+        outline: none;
+        background-color: inherit;
     }
 
     .error {

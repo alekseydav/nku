@@ -1,52 +1,21 @@
-<h1>Конфигуратор</h1>
+<script>
+    import Damper from "../components/calc/elements/Damper.svelte";
+</script>
 
-<div class="item">
-    <div class="header">Клапан воздушный</div>
-    <div>
-        Питание
-        <select>
-            <option>~ 220 В переменный ток</option>
-            <option>~ 24 В переменный ток</option>
-            <option>= 24 В постоянный ток</option>
-        </select>
-    </div>
-
-    <div>
-        Контроль положения
-        <select>
-            <option>Одно положение</option>
-            <option>Два положения</option>
-            <option>Сигнал 0-10 В / 2-20 мА</option>
-        </select>
-    </div>
-
-    <div>
-        Подогрев
-        <input type="checkbox" />
-    </div>
-
-
-</div>
-<div class="item">Фильтр</div>
-<div class="item">Фильтр</div>
-<div class="item">Калорифер</div>
-<div class="item">
-    <div class="header">Вентилятор</div>
-
-    <div>Тип пуска:</div>
-
-    <div>Ток:</div>
+<div class="wrapper">
+    <h1 class="header">Конфигуратор</h1>
+    <Damper />
 </div>
 
 <style>
-    .item {
-        outline: 1px solid #ccc;
-        padding: 5px;
+    .wrapper {
+        flex-direction: column;
+        align-items: center;
     }
 
     .header {
-        font-weight: bold;
-        text-decoration: underline;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
+        text-align: center;
+        justify-content: center;
     }
 </style>

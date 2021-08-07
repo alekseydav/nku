@@ -1,12 +1,11 @@
 <script>
-	import "../app.css";
-    import Header from "../components/blocks/Header.svelte";
-	import Headline from "../components/blocks/Headline.svelte";
-	import Projects from "../components/blocks/Projects.svelte";
-	import Reviews from "../components/blocks/Reviews.svelte";
-	import Request from "../components/blocks/Request.svelte";
-	import Contacts from "../components/blocks/Contacts.svelte";
-	import Footer from "../components/blocks/Footer.svelte";
+    import Header from "../components/landing/Header.svelte";
+	import Headline from "../components/landing/Headline.svelte";
+	import Projects from "../components/landing/Projects.svelte";
+	import Reviews from "../components/landing/Reviews.svelte";
+	import Request from "../components/landing/Request.svelte";
+	import Contacts from "../components/landing/Contacts.svelte";
+	import Footer from "../components/landing/Footer.svelte";
 </script>
 
 <svelte:head>

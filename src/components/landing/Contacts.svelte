@@ -31,6 +31,7 @@
     </div>
     <div class="map">
         <iframe
+            class="frame"
             title="Карта"
             width="100%"
             height="100%"
@@ -71,6 +72,11 @@
     .map {
         margin-left: 20px;
         flex-grow: 1;
+
+    }
+
+    .frame {
+        border: none;
     }
 
     @media (max-width: 576px) {

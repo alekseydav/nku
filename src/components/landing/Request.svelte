@@ -1,6 +1,6 @@
 <script>
-    import InputPhone from "../elements/InputPhone.svelte";
-    import Button from "../elements/Button.svelte";
+    import InputPhone from "../landing/elements/InputPhone.svelte";
+    import Button from "../landing/elements/Button.svelte";
     let phone = "";
     let isError = false;
 
