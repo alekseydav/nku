@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
 IP="65.21.249.105"
 EMAIL="a@nku.su"
-DOMAIN="test.nku.su"
+DOMAIN="nku.su"
 SSH_OPTIONS="-o StrictHostKeyChecking=no -o ConnectionAttempts=60"
 release=$(ssh $SSH_OPTIONS root@$IP lsb_release -cs)
 rm ~/.ssh/known_hosts
@@ -49,8 +49,6 @@ apt update
 
 apt install nginx -y
 EOF
-
-#scp server/nginx.conf root@$IP:/etc/nginx/nginx.conf
 
 echo "Nginx build nginx.conf"
 ssh $SSH_OPTIONS root@$IP <<EOF
@@ -135,15 +133,12 @@ ufw allow http
 ufw allow https
 ufw allow 1723
 
-
-
 apt update
 apt full-upgrade -y
 apt autoclean
 apt autoremove
 apt clean
 EOF
-
 
 ssh $SSH_OPTIONS root@$IP <<EOF
 sed -i 's/DEFAULT_FORWARD_POLICY="DROP"/DEFAULT_FORWARD_POLICY="ACCEPT"/g' /etc/default/ufw
@@ -154,16 +149,11 @@ sed -i "s%# Don't delete these required lines, otherwise there will be errors%# 
 sed -i 's%*nat%*nat \n:POSTROUTING ACCEPT [0:0]\n-A POSTROUTING -o eth0 -j MASQUERADE\nCOMMIT\n%g' /etc/ufw/before.rules
 EOF
 
-
-
-
-
 ssh $SSH_OPTIONS root@$IP <<EOF
 ufw disable
 ufw --force enable
 echo "y" | sudo ufw enable
 EOF
-
 
 echo "PPTPD SERVER INSTALLATION"
 ssh $SSH_OPTIONS root@$IP <<EOF
@@ -198,12 +188,9 @@ echo "nameserver 2001:4860:4860::8888" >> /etc/resolv.conf
 echo "nameserver 2001:4860:4860::8844" >> /etc/resolv.conf
 EOF
 
-
-
 ssh $SSH_OPTIONS root@$IP <<EOF
 sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
 sysctl -p
-
 EOF
 
 ECHO "Enter User and Password for PPTPD"
