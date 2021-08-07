@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
 IP="65.21.249.105"
 EMAIL="a@nku.su"
-DOMAIN="nku.su"
+DOMAIN="d.nku.su"
 SSH_OPTIONS="-o StrictHostKeyChecking=no -o ConnectionAttempts=60"
 release=$(ssh $SSH_OPTIONS root@$IP lsb_release -cs)
 rm ~/.ssh/known_hosts
@@ -50,6 +50,8 @@ apt update
 apt install nginx -y
 EOF
 
+#scp server/nginx.conf root@$IP:/etc/nginx/nginx.conf
+
 echo "Nginx build nginx.conf"
 ssh $SSH_OPTIONS root@$IP <<EOF
 echo -en "worker_processes auto;
@@ -81,7 +83,7 @@ http {
     location / {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
-        proxy_set_header Upgrade "'$http_upgrade'";
+        proxy_set_header Upgrade \\\$http_upgrade;
         proxy_set_header Connection \"upgrade\";
         proxy_read_timeout 86400;
     }
@@ -89,12 +91,12 @@ http {
 
   server {
     listen 80 default_server;
-    return 301 https://$DOMAIN"'$request_uri'";
+    return 301 https://$DOMAIN\\\$request_uri;
   }
 
   server {
     listen 443 ssl default_server;
-    return 301 https://$DOMAIN"'$request_uri'";
+    return 301 https://$DOMAIN\\\$request_uri;
 
     ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
@@ -133,12 +135,15 @@ ufw allow http
 ufw allow https
 ufw allow 1723
 
+
+
 apt update
 apt full-upgrade -y
 apt autoclean
 apt autoremove
 apt clean
 EOF
+
 
 ssh $SSH_OPTIONS root@$IP <<EOF
 sed -i 's/DEFAULT_FORWARD_POLICY="DROP"/DEFAULT_FORWARD_POLICY="ACCEPT"/g' /etc/default/ufw
@@ -149,11 +154,16 @@ sed -i "s%# Don't delete these required lines, otherwise there will be errors%# 
 sed -i 's%*nat%*nat \n:POSTROUTING ACCEPT [0:0]\n-A POSTROUTING -o eth0 -j MASQUERADE\nCOMMIT\n%g' /etc/ufw/before.rules
 EOF
 
+
+
+
+
 ssh $SSH_OPTIONS root@$IP <<EOF
 ufw disable
 ufw --force enable
 echo "y" | sudo ufw enable
 EOF
+
 
 echo "PPTPD SERVER INSTALLATION"
 ssh $SSH_OPTIONS root@$IP <<EOF
@@ -188,9 +198,12 @@ echo "nameserver 2001:4860:4860::8888" >> /etc/resolv.conf
 echo "nameserver 2001:4860:4860::8844" >> /etc/resolv.conf
 EOF
 
+
+
 ssh $SSH_OPTIONS root@$IP <<EOF
 sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
 sysctl -p
+
 EOF
 
 ECHO "Enter User and Password for PPTPD"
@@ -209,17 +222,6 @@ systemctl enable nginx
 systemctl restart nginx
 EOF
 
-ssh root@$IP "rm -r ~/build"
-scp -r build root@$IP:~
-scp package.json root@$IP:~/build
-ssh root@$IP << EOF
-cd build
-npm install --production
-pm2 stop nku
-rm -r ~/nku
-mv ~/build ~/nku
-pm2 start ~/nku/index.js --name nku
-pm2 save
-EOF
+./deploy.sh
 
 echo "https://$DOMAIN"
