@@ -4,6 +4,10 @@
     import Number from "../props/Number.svelte";
 
     const damper = {
+        selPower: "",
+        selFeedback: "",
+        selHeat: false,
+
         power: [
             "~ 220 В переменный ток",
             "~ 24 В переменный ток",
@@ -24,8 +28,11 @@
 </script>
 
 <Wrapper name="Заслонка">
-    <Select name="Питание" items="{damper.power}"/>
+    <Select name="Питание" selected="{damper.selPower}" items="{damper.power}"/>
+    <Number name="Ток" unit="мА" />
     <Select name="Обратная связь" items="{damper.feedback}" />
     <Select name="Подогрев" items="{damper.heat}" />
+    {#if user.loggedIn}
     <Number name="Ток нагрева" unit="мА" />
+    {/if}
 </Wrapper>

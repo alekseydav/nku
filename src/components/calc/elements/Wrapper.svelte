@@ -22,6 +22,7 @@
 
     .content { 
         flex-direction: column;
+        margin-top: 5px;
     }
 
     /* .item {
