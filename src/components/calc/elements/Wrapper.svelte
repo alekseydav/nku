@@ -1,5 +1,5 @@
 <script>
-    export let name = "";
+    export let name;
 </script>
 
 <div class="root">
@@ -24,15 +24,4 @@
         flex-direction: column;
         margin-top: 5px;
     }
-
-    /* .item {
-        outline: 1px solid #ccc;
-        padding: 5px;
-    }
-
-    .header {
-        font-weight: bold;
-        text-decoration: underline;
-        margin-bottom: 10px;
-    } */
 </style>
