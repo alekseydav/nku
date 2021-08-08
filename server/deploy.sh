@@ -1,10 +1,10 @@
 #!/bin/bash
-IP="65.21.249.105"
+DOMAIN="nku.su"
 
-ssh root@$IP "rm -r ~/build"
-scp -r build root@$IP:~
-scp package.json root@$IP:~/build
-ssh root@$IP << EOF
+ssh root@$DOMAIN "rm -r ~/build"
+scp -r build root@$DOMAIN:~
+scp package.json root@$DOMAIN:~/build
+ssh root@$DOMAIN << EOF
 cd build
 npm install --production
 pm2 stop nku

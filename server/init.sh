@@ -1,13 +1,11 @@
 #!/bin/bash
-IP="65.21.249.105"
-EMAIL="a@nku.su"
 DOMAIN="nku.su"
 read -sp "Enter PPTPD Password: " passvar
 SSH_OPTIONS="-o StrictHostKeyChecking=no -o ConnectionAttempts=60"
-release=$(ssh $SSH_OPTIONS root@$IP lsb_release -cs)
+release=$(ssh $SSH_OPTIONS root@$DOMAIN lsb_release -cs)
 rm ~/.ssh/known_hosts
 
-ssh $SSH_OPTIONS root@$IP <<EOF
+ssh $SSH_OPTIONS root@$DOMAIN <<EOF
 apt update
 apt upgrade -y
 
@@ -18,26 +16,26 @@ snap install core
 snap refresh core
 EOF
 
-ssh $SSH_OPTIONS root@$IP <<EOF
+ssh $SSH_OPTIONS root@$DOMAIN <<EOF
 snap install --classic certbot
 EOF
 
-ssh $SSH_OPTIONS root@$IP <<EOF
+ssh $SSH_OPTIONS root@$DOMAIN <<EOF
 ln -s /snap/bin/certbot /usr/bin/certbot
 echo "Getting SSL"
-certbot certonly --standalone -m $EMAIL -d $DOMAIN  --agree-tos -n 
+certbot certonly --standalone -m a@nku.su -d $DOMAIN  --agree-tos -n 
 echo "Let's Encrypt SSL done"
 echo "--------------------------------------------------------------------------------------------------------"
 openssl dhparam -out /etc/letsencrypt/ssl-dhparams.pem 2048
 EOF
-ssh $SSH_OPTIONS root@$IP <<EOF
+ssh $SSH_OPTIONS root@$DOMAIN <<EOF
 echo "deb http://security.ubuntu.com/ubuntu bionic-security main" | sudo tee -a /etc/apt/sources.list.d/bionic.list
 apt update
 apt-cache policy libssl1.0-dev 
 apt install libssl1.0-dev -y
 EOF
 
-ssh $SSH_OPTIONS root@$IP <<EOF
+ssh $SSH_OPTIONS root@$DOMAIN <<EOF
 echo "deb http://nginx.org/packages/mainline/ubuntu $release nginx" > /etc/apt/sources.list.d/nginx.list
 echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" | tee /etc/apt/preferences.d/99nginx
 curl -o /tmp/nginx_signing.key https://nginx.org/keys/nginx_signing.key
@@ -48,7 +46,7 @@ apt update
 apt install nginx -y
 EOF
 
-ssh $SSH_OPTIONS root@$IP <<EOF
+ssh $SSH_OPTIONS root@$DOMAIN <<EOF
 echo -en "worker_processes auto;
 pid /var/run/nginx.pid;
 
@@ -99,7 +97,7 @@ http {
 }" > /etc/nginx/nginx.conf
 EOF
 
-ssh $SSH_OPTIONS root@$IP <<EOF
+ssh $SSH_OPTIONS root@$DOMAIN <<EOF
 echo "history" >> etc/iptables.up.rules.old
 iptables-save >> /etc/iptables.up.rules.old
 iptables -P INPUT ACCEPT
@@ -111,7 +109,7 @@ iptables -F
 iptables -X
 EOF
 
-ssh $SSH_OPTIONS root@$IP <<EOF
+ssh $SSH_OPTIONS root@$DOMAIN <<EOF
 nginx -s reload
 
 curl -fsSL https://deb.nodesource.com/setup_current.x | bash -
@@ -136,7 +134,7 @@ apt autoremove
 apt clean
 EOF
 
-ssh $SSH_OPTIONS root@$IP <<EOF
+ssh $SSH_OPTIONS root@$DOMAIN <<EOF
 sed -i 's/DEFAULT_FORWARD_POLICY="DROP"/DEFAULT_FORWARD_POLICY="ACCEPT"/g' /etc/default/ufw
 sed -i 's%*filter%*filter\n-A ufw-before-input -p 47 -j ACCEPT%g' /etc/ufw/before.rules
 sed -i 's%*filter%*filter\n-A ufw-before-output -p 47 -j ACCEPT%g' /etc/ufw/before.rules
@@ -145,16 +143,16 @@ sed -i "s%# Don't delete these required lines, otherwise there will be errors%# 
 sed -i 's%*nat%*nat \n:POSTROUTING ACCEPT [0:0]\n-A POSTROUTING -o eth0 -j MASQUERADE\nCOMMIT\n%g' /etc/ufw/before.rules
 EOF
 
-ssh $SSH_OPTIONS root@$IP <<EOF
+ssh $SSH_OPTIONS root@$DOMAIN <<EOF
 ufw disable
 ufw --force enable
 echo "y" | sudo ufw enable
 EOF
 
-ssh $SSH_OPTIONS root@$IP <<EOF
+ssh $SSH_OPTIONS root@$DOMAIN <<EOF
 apt install pptpd ppp iptables iproute2 -y
 EOF
-ssh $SSH_OPTIONS root@$IP <<EOF
+ssh $SSH_OPTIONS root@$DOMAIN <<EOF
 echo "option /etc/ppp/pptpd-options" > /etc/pptpd.conf
 echo "pidfile /var/run/pptpd.pid" >> /etc/pptpd.conf
 echo "localip 10.0.0.1" >> /etc/pptpd.conf
@@ -174,7 +172,7 @@ echo "novjccomp" >> /etc/ppp/pptpd-options
 echo "nologfd" >> /etc/ppp/pptpd-options
 EOF
 
-ssh $SSH_OPTIONS root@$IP <<EOF
+ssh $SSH_OPTIONS root@$DOMAIN <<EOF
 rm -rf /etc/resolv.conf
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 echo "nameserver 8.8.4.4" >> /etc/resolv.conf
@@ -182,16 +180,16 @@ echo "nameserver 2001:4860:4860::8888" >> /etc/resolv.conf
 echo "nameserver 2001:4860:4860::8844" >> /etc/resolv.conf
 EOF
 
-ssh $SSH_OPTIONS root@$IP <<EOF
+ssh $SSH_OPTIONS root@$DOMAIN <<EOF
 sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
 sysctl -p
 EOF
 
-ssh $SSH_OPTIONS root@$IP <<EOF
+ssh $SSH_OPTIONS root@$DOMAIN <<EOF
 echo "nku * $passvar *" >> /etc/ppp/chap-secrets
 EOF
 
-ssh $SSH_OPTIONS root@$IP <<EOF
+ssh $SSH_OPTIONS root@$DOMAIN <<EOF
 systemctl restart pptpd
 systemctl enable pptpd
 systemctl enable nginx
