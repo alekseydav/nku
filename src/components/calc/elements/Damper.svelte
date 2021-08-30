@@ -2,15 +2,10 @@
   import Wrapper from "./Wrapper.svelte";
   import Select from "../props/Select.svelte";
   import Number from "../props/Number.svelte";
+  import { createEventDispatcher } from "svelte";
+  const dispatch = createEventDispatcher();
 
-  export let value = {
-    power: 0,
-    current: 100,
-    spring: 0,
-    feedback: 0,
-    heat: false,
-    heatCurrent: 100,
-  };
+  export let value;
 
   const powerList = ["~ 220 В переменный ток", "~ 24 В переменный ток"];
 
@@ -25,9 +20,13 @@
   ];
 
   const heatList = ["Нет", "Да"];
+
+  function remove() {
+    dispatch("remove", value);
+  }
 </script>
 
-<Wrapper name="Заслонка">
+<Wrapper name="Заслонка" on:remove={remove}>
   <Select name="Питание" bind:value={value.power} items={powerList} />
   <Number name="Ток" bind:value={value.current} unit="мА" />
   <Select
