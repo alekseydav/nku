@@ -1,12 +1,12 @@
 <script>
   import Damper from "../components/calc/elements/Damper.svelte";
 
-  let damper = {};
+  let damper;
 </script>
 
 <div class="wrapper">
   <h1 class="header">Конфигуратор</h1>
-  <h3>{damper}</h3>
+  <h3>{JSON.stringify(damper)}</h3>
   <Damper bind:value={damper} />
 </div>
 
