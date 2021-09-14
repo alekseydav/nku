@@ -4,13 +4,15 @@
 
   let items = [];
 
+  function log() {
+    console.log(items);
+  }
+
   function addFan() {
     items = [
       ...items,
       {
-        type: "fan",
-        trigger: 0,
-        current: 2,
+        type: 'fan',
       },
     ];
   }
@@ -19,34 +21,30 @@
     items = [
       ...items,
       {
-        type: "damper",
-        power: 0,
-        current: 100,
-        spring: 0,
-        feedback: 0,
-        heat: false,
-        heatCurrent: 100,
+        type: 'damper',
       },
     ];
   }
 
   function remove(e) {
-    items = items.filter(t => t !== e.detail)
+    console.log(e)
+    items = items.filter((t) => t !== e.detail);
   }
 </script>
 
 <div class="wrapper">
   <h1 class="header">Конфигуратор</h1>
 
+  <button on:click={log}>LOG</button>
   <button on:click={addFan}>Вентилятор</button>
   <button on:click={addDamper}>Заслонка</button>
 
   <div class="items">
     {#each items as item}
       {#if item.type === "damper"}
-        <Damper bind:value={item} on:remove={remove} />
+        <Damper bind:value={item.value} on:remove={remove} />
       {:else if item.type === "fan"}
-        <Fan bind:value={item} on:remove={remove} />
+        <Fan bind:value={item.value} on:remove={remove} />
       {/if}
     {/each}
   </div>

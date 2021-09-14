@@ -5,7 +5,10 @@
   import { createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher();
 
-  export let value;
+  export let value = {
+    trigger: 0,
+    current: 2,
+  };
 
   const triggerList = [
     "Прямой пуск",

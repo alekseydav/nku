@@ -5,7 +5,14 @@
   import { createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher();
 
-  export let value;
+  export let value = {
+    power: 0,
+    current: 100,
+    spring: 0,
+    feedback: 0,
+    heat: true,
+    heatCurrent: 100,
+  };
 
   const powerList = ["~ 220 В переменный ток", "~ 24 В переменный ток"];
 
