@@ -1,24 +1,24 @@
 <script context="module">
-	export async function load({ page, fetch, session, context }) {
-		console.log(page);
+	let id, name, project;
 
+	export async function load({ page, fetch }) {
+		const res = await fetch(`/api/panel?id=${page.params.id}`);
+		const data = await res.json();
 
-		// const url = `/blog/${page.params.slug}.json`;
-		// const res = await fetch(url);
+		id = data.id;
+		name = data.name;
+		project = data.project;
 
-		// if (res.ok) {
-		// 	return {
-		// 		props: {
-		// 			article: await res.json()
-		// 		}
-		// 	};
-		// }
+		fetch(`/api/send`, {
+            method: "POST",
+            body: `Переход по ссылке:\nid: ${id}\nЩит: ${name}\nПроект: ${project}`
+        });
 
-		// return {
-		// 	status: res.status,
-		// 	error: new Error(`Не могу загрузить ${url}`)
-		// };
+		return {};
 	}
 </script>
 
 <h1>Заказ</h1>
+<div>Щит: {name}</div>
+<div>Код: {id}</div>
+<div>Проект: {project}</div>

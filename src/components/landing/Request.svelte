@@ -12,11 +12,7 @@
 
         fetch(`/api/send`, {
             method: "POST",
-            body: JSON.stringify({
-                phone: phone,
-                title: document.title,
-                url: window.location.href,
-            }),
+            body: `${phone}\n${document.title}\n${window.location.href}`
         });
         phone = "";
     }
