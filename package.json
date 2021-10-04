@@ -6,8 +6,8 @@
     "dev": "svelte-kit dev",
     "build": "svelte-kit build",
     "preview": "svelte-kit preview",
-    "init": "./server/init.sh",
-    "deploy": "npm run build && ./server/deploy.sh"
+    "init": "bash ./server/init-http.sh",
+    "deploy": "npm run build && bash ./server/deploy.sh"
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^1.0.0-next.33",

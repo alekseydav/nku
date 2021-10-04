@@ -3,6 +3,7 @@ DOMAIN="nku.su"
 
 ssh root@$DOMAIN "rm -r ~/build"
 scp -r build root@$DOMAIN:~
+scp -r db root@$DOMAIN:~/build
 scp package.json root@$DOMAIN:~/build
 ssh root@$DOMAIN << EOF
 cd build

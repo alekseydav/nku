@@ -1,6 +1,7 @@
 #!/bin/bash
 DOMAIN="nku.su"
-read -sp "Enter PPTPD Password: " passvar
+read -sp "Enter 
+ Password: " passvar
 SSH_OPTIONS="-o StrictHostKeyChecking=no -o ConnectionAttempts=60"
 release=$(ssh $SSH_OPTIONS root@$DOMAIN lsb_release -cs)
 rm ~/.ssh/known_hosts
@@ -10,25 +11,9 @@ apt update
 apt upgrade -y
 apt install curl gnupg2 ca-certificates lsb-release apt-utils libterm-readkey-perl libswitch-perl -y
 apt install snapd -y
-snap install core
-snap refresh core
 EOF
 
 ssh $SSH_OPTIONS root@$DOMAIN <<EOF
-snap install --classic certbot
-EOF
-
-ssh $SSH_OPTIONS root@$DOMAIN <<EOF
-ln -s /snap/bin/certbot /usr/bin/certbot
-echo "Getting SSL"
-certbot certonly --standalone -m a@nku.su -d $DOMAIN  --agree-tos -n 
-echo "Let's Encrypt SSL done"
-echo "--------------------------------------------------------------------------------------------------------"
-openssl dhparam -out /etc/letsencrypt/ssl-dhparams.pem 2048
-EOF
-ssh $SSH_OPTIONS root@$DOMAIN <<EOF
-echo "deb http://security.ubuntu.com/ubuntu bionic-security main" | sudo tee -a /etc/apt/sources.list.d/bionic.list
-apt update
 apt-cache policy libssl1.0-dev 
 apt install libssl1.0-dev -y
 EOF
@@ -40,7 +25,6 @@ curl -o /tmp/nginx_signing.key https://nginx.org/keys/nginx_signing.key
 gpg --dry-run --quiet --import --import-options show-only /tmp/nginx_signing.key
 mv /tmp/nginx_signing.key /etc/apt/trusted.gpg.d/nginx_signing.asc
 apt update
-
 apt install nginx -y
 EOF
 
@@ -61,15 +45,8 @@ http {
 
   server {
     server_name $DOMAIN;
-    listen 443 ssl;
-    listen [::]:443 ssl;
-
-    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-    ssl_session_tickets off;
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers \"ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384\";
+    listen 80;
+    listen [::]:80;
 
     location / {
         proxy_pass http://localhost:3000;
@@ -78,19 +55,6 @@ http {
         proxy_set_header Connection \"upgrade\";
         proxy_read_timeout 86400;
     }
-  }
-
-  server {
-    listen 80 default_server;
-    return 301 https://$DOMAIN\\\$request_uri;
-  }
-
-  server {
-    listen 443 ssl default_server;
-    return 301 https://$DOMAIN\\\$request_uri;
-
-    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
   }
 }" > /etc/nginx/nginx.conf
 EOF
