@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 DOMAIN="nku.su"
 
 ssh root@$DOMAIN "rm -r ~/build"
