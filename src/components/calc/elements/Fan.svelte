@@ -16,6 +16,14 @@
     "Звезда / Треугольник",
   ];
 
+  function moveDown() {
+    dispatch("moveDown", value);
+  }
+
+  function moveUp() {
+    dispatch("moveUp", value);
+  }
+
   function remove() {
     dispatch("remove", value);
   }

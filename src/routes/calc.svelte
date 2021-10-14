@@ -1,5 +1,10 @@
 <script>
   import Damper from "../components/calc/elements/Damper.svelte";
+  import Filter from "../components/calc/elements/Filter.svelte";
+  import HeaterWater from "../components/calc/elements/HeaterWater.svelte";
+  import HeaterElectric from "../components/calc/elements/HeaterElectric.svelte";
+  import Cooler from "../components/calc/elements/CoolerWater.svelte";
+  import Humidifier from "../components/calc/elements/Humidifier.svelte";
   import Fan from "../components/calc/elements/Fan.svelte";
 
   let items = [];
@@ -8,27 +13,12 @@
     console.log(items);
   }
 
-  function addFan() {
-    items = [
-      ...items,
-      {
-        type: 'fan',
-      },
-    ];
-  }
-
-  function addDamper() {
-    items = [
-      ...items,
-      {
-        type: 'damper',
-      },
-    ];
+  function addItem(type) {
+    items = [...items, { type: type }];
   }
 
   function remove(e) {
-    console.log(e)
-    items = items.filter((t) => t !== e.detail);
+    items = items.filter((t) => t.value !== e.detail);
   }
 </script>
 
@@ -36,14 +26,27 @@
   <h1 class="header">Конфигуратор</h1>
 
   <button on:click={log}>LOG</button>
-  <button on:click={addFan}>Вентилятор</button>
-  <button on:click={addDamper}>Заслонка</button>
+  <button on:click={() => addItem("Damper")}>Заслонка</button>
+  <button on:click={() => addItem("Filter")}>Фильтр</button>
+  <button on:click={() => addItem("HeaterWater")}>Нагреватель водяной</button>
+  <button on:click={() => addItem("HeaterElectric")}>Нагреватель электрический</button>
+  <button on:click={() => addItem("Cooler")}>Охладитель</button>
+  <button on:click={() => addItem("Humidifier")}>Увлажнитель</button>
+  <button on:click={() => addItem("Fan")}>Вентилятор</button>
 
   <div class="items">
     {#each items as item}
-      {#if item.type === "damper"}
+      {#if item.type === "Damper"}
         <Damper bind:value={item.value} on:remove={remove} />
-      {:else if item.type === "fan"}
+      {:else if item.type === "Filter"}
+        <Filter bind:value={item.value} on:remove={remove} />
+      {:else if item.type === "HeaterWater"}
+        <HeaterWater bind:value={item.value} on:remove={remove} />
+      {:else if item.type === "HeaterElectric"}
+        <HeaterElectric bind:value={item.value} on:remove={remove} />
+      {:else if item.type === "Cooler"}
+        <Cooler bind:value={item.value} on:remove={remove} />
+      {:else if item.type === "Fan"}
         <Fan bind:value={item.value} on:remove={remove} />
       {/if}
     {/each}

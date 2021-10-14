@@ -4,7 +4,13 @@
 
     export let name;
 
-    
+    function moveDown() {
+        dispatch('moveDown');
+    }
+
+    function moveUp() {
+        dispatch('moveUp');
+    }
 
     function remove() {
         dispatch('remove');
@@ -14,7 +20,9 @@
 <div class="root">
     <div>
         <h2 class="title">{name}</h2>
-        <button on:click={remove}>Удалить</button>
+        <button on:click={moveDown}>↓</button>
+        <button on:click={moveUp}>↑</button>
+        <button on:click={remove}>✖</button>
     </div>
     <div class="content">
         <slot />

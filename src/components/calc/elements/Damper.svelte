@@ -10,7 +10,7 @@
     current: 100,
     spring: 0,
     feedback: 0,
-    heat: true,
+    heat: 0,
     heatCurrent: 100,
   };
 
