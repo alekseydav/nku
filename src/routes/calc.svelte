@@ -1,11 +1,11 @@
 <script>
-  import Damper from "../components/calc/elements/Damper.svelte";
-  import Filter from "../components/calc/elements/Filter.svelte";
-  import HeaterWater from "../components/calc/elements/HeaterWater.svelte";
-  import HeaterElectric from "../components/calc/elements/HeaterElectric.svelte";
-  import Cooler from "../components/calc/elements/CoolerWater.svelte";
-  import Humidifier from "../components/calc/elements/Humidifier.svelte";
-  import Fan from "../components/calc/elements/Fan.svelte";
+  import Damper from "../calc/elements/Damper.svelte";
+  import Filter from "../calc/elements/Filter.svelte";
+  import HeaterWater from "../calc/elements/HeaterWater.svelte";
+  import HeaterElectric from "../calc/elements/HeaterElectric.svelte";
+  import Cooler from "../calc/elements/CoolerWater.svelte";
+  // import Humidifier from "../calc/elements/Humidifier.svelte";
+  import Fan from "../calc/elements/Fan.svelte";
 
   let items = [];
 

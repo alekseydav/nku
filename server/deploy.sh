@@ -11,7 +11,7 @@ npm install --production
 pm2 stop nku
 rm -r ~/nku
 mv ~/build ~/nku
-pm2 start ~/nku/index.js --name nku
+pm2 start npm --name nku -- start
 pm2 save
 EOF
 
