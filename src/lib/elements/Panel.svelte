@@ -1,37 +1,41 @@
 <script>
     import Button from "$lib/elements/Button.svelte";
     import Link from "$lib/elements/Link.svelte";
-    import Container from "./Container.svelte";
 </script>
 
-<div class="root">
-    <a href="/">
-        <img src="/logo.png" alt="НКУ" />
-    </a>
+<div class="wrapper">
+    <div>
+        <a href="/">
+            <img src="/logo.png" alt="НКУ" />
+        </a>
 
-    <Container>
-        <nav class="nav">
-            <Link href="#about" text="О компании" />
-            <Link href="#projects" text="Проекты" />
-            <Link href="#reviews" text="Отзывы" />
-            <Link href="#contacts" text="Контакты" />
-        </nav>
+        <div class="menu">
+            <nav class="nav">
+                <Link href="#about" text="О компании" />
+                <Link href="#projects" text="Проекты" />
+                <Link href="#reviews" text="Отзывы" />
+                <Link href="#contacts" text="Контакты" />
+            </nav>
 
-        <div class="contacts">
-            <Link href="mailto:info@nku.su" text="info@nku.su" bold="true" />
-            <Link href="tel:+7-916-444-11-59" text="О компании" bold="true" />
+            <div class="contacts">
+                <Link
+                    href="mailto:info@nku.su"
+                    text="info@nku.su"
+                    bold="true"
+                />
+                <Link
+                    href="tel:+7-916-444-11-59"
+                    text="О компании"
+                    bold="true"
+                />
+            </div>
         </div>
-    </Container>
-    
-    <div class="menu">
-
+        <Button />
     </div>
-
-    <Button />
 </div>
 
 <style>
-    .root {
+    .wrapper {
         font-size: 20px;
         flex-direction: row;
         display: flex;

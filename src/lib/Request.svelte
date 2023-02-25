@@ -1,5 +1,8 @@
 <script>
+    import Container from "./elements/Container.svelte";
     import Header from "./elements/Header.svelte";
 </script>
 
-<Header text="ОСТАВЬТЕ ЗАЯВКУ" />
+<Container>
+    <Header text="ОСТАВЬТЕ ЗАЯВКУ" />
+</Container>

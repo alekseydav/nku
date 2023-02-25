@@ -8,10 +8,20 @@
     import Reviews from "../lib/Reviews.svelte";
 </script>
 
-<header>
-    <Panel />
-</header>
+<div class="wrapper">
+    <div class="elem" />
+    <div class="elem" />
+    <div class="elem" />
+    <div class="elem" />
+    <div class="elem" />
+    <div class="elem" />
+</div>
 
+<!-- <header>
+    <Panel />
+</header> -->
+
+<!-- 
 <Headline />
 <About />
 <Projects />
@@ -21,18 +31,9 @@
 
 <footer>
     <Panel />
-</footer>
-
+</footer> -->
 <style>
     :global(body) {
         margin: 0;
-    }
-
-    :global(body:nth-child(odd)) {
-        background-color: #e5e5e5;
-    }
-
-    :global(body:nth-child(even)) {
-        background-color: #dfe1e3;
     }
 </style>

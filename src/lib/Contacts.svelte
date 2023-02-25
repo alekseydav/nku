@@ -1,5 +1,8 @@
 <script>
+    import Container from "./elements/Container.svelte";
     import Header from "./elements/Header.svelte";
 </script>
 
-<Header text="КОНТАКТЫ" />
+<Container>
+    <Header text="КОНТАКТЫ" />
+</Container>
