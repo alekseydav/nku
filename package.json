@@ -1,26 +1,22 @@
 {
-  "name": "nku",
-  "version": "0.0.1",
-  "type": "module",
-  "scripts": {
-    "dev": "svelte-kit dev",
-    "build": "svelte-kit build",
-    "preview": "svelte-kit preview",
-    "start": "HOST=127.0.0.1 PORT=3000 node build",
-    "init": "bash ./server/init.sh",
-    "deploy": "npm run build && bash ./server/deploy.sh"
-  },
-  "devDependencies": {
-    "@sveltejs/adapter-node": "^1.0.0-next.55",
-    "@sveltejs/kit": "next",
-    "svelte": "^3.42.6",
-    "swiper": "^7.2.0"
-  },
-  "dependencies": {
-    "dotenv": "^10.0.0",
-    "express": "^4.17.1",
-    "multer": "^1.4.3",
-    "node-fetch": "^3.1.0",
-    "node-telegram-bot-api": "^0.54.0"
-  }
+	"name": "landing",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "^2.0.0",
+		"@sveltejs/kit": "^1.5.0",
+		"svelte": "^3.54.0",
+		"svelte-check": "^3.0.1",
+		"tslib": "^2.4.1",
+		"typescript": "^4.9.3",
+		"vite": "^4.0.0"
+	},
+	"type": "module"
 }
